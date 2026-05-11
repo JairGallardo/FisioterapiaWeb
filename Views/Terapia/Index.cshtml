@@ -1,0 +1,76 @@
+﻿@model List<FisioterapiaWeb.Models.Terapia>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-0">Servicios</h1>
+            <p class="text-muted">Servicios disponibles en el centro</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        @foreach (var t in Model.Where(x => !x.EsPaquete))
+        {
+            <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm p-3" style="border-radius: 20px;">
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <i class="bi bi-person-walking text-dark fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">@t.Nombre</h5>
+                        <p class="text-muted small" style="font-size: 0.85rem; height: 40px; overflow: hidden;">@t.Descripcion</p>
+
+                        <hr class="text-muted opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-muted small">costo</span>
+                                @if (t.Precio == 0)
+                                {
+                                    <span class="ms-3 fw-bold text-success">Gratis</span>
+                                }
+                                else
+                                {
+                                    <span class="ms-3 fw-bold text-success">S/. @t.Precio.ToString("F2")</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <h3 class="fw-bold mb-1">Paquetes</h3>
+    <p class="text-muted mb-4">Servicios disponibles en el centro</p>
+
+    <div class="row">
+        @foreach (var t in Model.Where(x => x.EsPaquete))
+        {
+            <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm p-3" style="border-radius: 20px;">
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <i class="bi bi-people text-dark fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">@t.Nombre</h5>
+                        <p class="text-muted small" style="font-size: 0.85rem; height: 40px; overflow: hidden;">@t.Descripcion</p>
+
+                        <hr class="text-muted opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-muted small">costo</span>
+                                <span class="ms-3 fw-bold text-success">S/. @t.Precio.ToString("F2")</span>
+                                @if (t.Precio > 0)
+                                {
+                                    <span class="text-muted text-decoration-line-through ms-2 small">S/. @((t.Precio * 1.2m).ToString("F2"))</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

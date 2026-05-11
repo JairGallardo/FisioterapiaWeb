@@ -1,0 +1,123 @@
+﻿@model List<FisioterapiaWeb.Models.FichaClinica>
+
+<div class="container-fluid px-4">
+    <div class="mb-4">
+        <h1 class="fw-bold" style="font-family: 'Playfair Display', serif; font-size: 2.5rem;">Historial clínico</h1>
+        <p class="text-muted">Información de cliente</p>
+    </div>
+
+    <div class="row">
+        @* --- FICHA DE FISIOTERAPIA (IZQUIERDA) --- *@
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 0px; background-color: #f8f9fa;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+                    <h4 class="fw-bold mb-0" style="letter-spacing: 1px;">Ficha de fisioterapia</h4>
+                    <div>
+                        <span class="text-muted me-2">Ingreso</span>
+                        <span class="badge bg-light text-dark border px-3">@DateTime.Now.ToString("dd/MM/yy")</span>
+                    </div>
+                </div>
+
+                <form asp-action="GuardarNota" method="post">
+                    <input type="hidden" name="PacienteId" value="@ViewBag.PacienteId" />
+                    <input type="hidden" name="nombrePaciente" value="@ViewBag.Nombre" />
+
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label class="fw-bold d-block mb-1">Nombre:</label>
+                            <input type="text" class="form-control border-0 bg-light shadow-sm" value="@ViewBag.Nombre" readonly style="border-radius: 10px;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Edad:</label>
+                            <input type="text" name="Edad" class="form-control border-0 bg-light shadow-sm" style="border-radius: 10px;" placeholder="00">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Género:</label>
+                            <div class="d-flex gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" value="Masculino" id="m">
+                                    <label class="form-check-label text-muted" for="m">Masculino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" value="Femenino" id="f">
+                                    <label class="form-check-label text-muted" for="f">Femenino</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="fw-bold d-block mb-1">Teléfono:</label>
+                            <input type="text" name="Telefono" class="form-control border-0 bg-light shadow-sm" style="border-radius: 10px;" placeholder="Ingrese número de teléfono">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fw-bold d-block mb-2">Diagnóstico</label>
+                        <textarea name="Diagnostico" class="form-control border-0 bg-light shadow-sm" rows="5" style="border-radius: 15px;" placeholder="El paciente presenta..."></textarea>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <label class="fw-bold d-block mb-3 border-bottom pb-1">¿En que aspecto funcional interfiere?</label>
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                @foreach (var asp in new[] { "Neuro desarrollo", "Locomoción", "Actividades de la vida diaria", "Actividades escolares", "Actividades laborales" })
+                                {
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="radio" name="AspectoFuncional" value="@asp">
+                                        <label class="form-check-label">@asp</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="fw-bold d-block mb-2">Tratamiento</label>
+                            <textarea name="Tratamiento" class="form-control border-0 bg-light shadow-sm" rows="4" style="border-radius: 15px;" placeholder="El paciente presenta..."></textarea>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" checked disabled>
+                                <label class="form-check-label text-muted small">Terapia básica</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn px-5 text-white shadow-sm" style="background-color: #2c5d7d; border-radius: 10px;">Guardar Ficha</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @* --- NOTAS DE PACIENTE (DERECHA - AMARILLO) --- *@
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100" style="background-color: #ffda79; border-radius: 5px;">
+                <div class="card-body p-4 d-flex flex-column">
+                    <h4 class="text-center fw-bold mb-4">Notas de paciente</h4>
+
+                    <div class="flex-grow-1 overflow-auto pe-2" style="max-height: 500px;">
+                        @if (Model != null)
+                        {
+                            @foreach (var nota in Model)
+                            {
+                                <div class="bg-white bg-opacity-75 p-3 mb-3 shadow-sm" style="border-radius: 10px;">
+                                    <div class="text-center mb-2">
+                                        <span class="badge bg-white text-dark border shadow-sm">@nota.Fecha.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <p class="mb-0" style="font-size: 0.95rem; line-height: 1.4;">
+                                        @nota.Tratamiento
+                                    </p>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <div class="bg-white d-inline-block px-4 py-1 mb-3 shadow-sm fw-bold" style="border-radius: 10px;">Hoy</div>
+                        <br />
+                        <a asp-controller="Cita" asp-action="Index" class="btn text-white px-5 shadow" style="background-color: #2c5d7d; border-radius: 10px;">Atrás</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

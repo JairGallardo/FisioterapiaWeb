@@ -1,0 +1,60 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model FisioterapiaWeb.Models.Paciente
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px; border-radius: 20px;">
+        <div class="card-header bg-white border-0 pt-4 text-center">
+            <h3 class="fw-bold" style="color: #2c5d7d;">Editar Paciente</h3>
+            <p class="text-muted">Modifica la información necesaria del registro</p>
+        </div>
+        <div class="card-body px-4 pb-4">
+            <form asp-action="Actualizar" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre completo*</label>
+                    <div class="row">
+                        <div class="col">
+                            <input asp-for="Nombre" class="form-control bg-light border-0 py-2" placeholder="Nombre" required style="border-radius: 10px;" />
+                        </div>
+                        <div class="col">
+                            <input asp-for="Apellido" class="form-control bg-light border-0 py-2" placeholder="Apellido" required style="border-radius: 10px;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Teléfono</label>
+                        <div class="input-group">
+                            <input asp-for="Telefono" class="form-control bg-light border-0 py-2" placeholder="999..." style="border-radius: 10px 0 0 10px;" />
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-telephone"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">DNI</label>
+                        <input asp-for="Dni" class="form-control bg-light border-0 py-2" placeholder="DNI" style="border-radius: 10px;" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Correo Electrónico</label>
+                    <input asp-for="Correo" type="email" class="form-control bg-light border-0 py-2" placeholder="ejemplo@correo.com" style="border-radius: 10px;" />
+                </div>
+
+                <div class="d-flex gap-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100 py-2 fw-bold" style="border-radius: 25px;">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow" style="border-radius: 25px; background-color: #2c5d7d; border: none;">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

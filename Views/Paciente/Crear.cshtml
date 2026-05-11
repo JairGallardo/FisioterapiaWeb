@@ -1,0 +1,44 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model FisioterapiaWeb.Models.Paciente
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px; border-radius: 15px;">
+        <div class="card-header bg-white border-0 pt-4">
+            <h3 class="fw-bold" style="color: #2c5d7d;">Nuevo Registro</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Guardar" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" required />
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">DNI</label>
+                        <input asp-for="Dni" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input asp-for="Telefono" class="form-control" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input asp-for="Correo" type="email" class="form-control" />
+                </div>
+                <div class="text-end mt-4">
+                    <a asp-action="Index" class="btn btn-light me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary" style="background-color: #2c5d7d;">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

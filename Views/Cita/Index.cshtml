@@ -1,0 +1,214 @@
+﻿@model List<FisioterapiaWeb.Models.Cita>
+
+<div class="container-fluid">
+    @if (User.IsInRole("Fisioterapeuta"))
+    {
+        @* --- ENCABEZADO Y CALENDARIO --- *@
+        <div class="row mb-2">
+            <div class="col-12">
+                <h1 class="fw-bold" style="font-size: 2.5rem; font-family: 'Playfair Display', serif;">Agenda</h1>
+                <p class="text-muted">Gestiona las citas del centro</p>
+            </div>
+        </div>
+
+        @* Bloque de Calendario Semanal *@
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+            <div class="card-body p-4 text-center">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-link text-dark"><i class="bi bi-chevron-left"></i></button>
+                    <span class="fw-bold text-lowercase">@DateTime.Now.ToString("MMMM 'de' yyyy")</span>
+                    <button class="btn btn-link text-dark"><i class="bi bi-chevron-right"></i></button>
+                </div>
+                <div class="row g-0">
+                    @{
+                        string[] dias = { "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom" };
+                        DateTime inicioSemana = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + 1);
+                    }
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var diaFecha = inicioSemana.AddDays(i);
+                        bool esHoy = diaFecha.Date == DateTime.Today.Date;
+                        <div class="col">
+                            <small class="text-muted d-block">@dias[i]</small>
+                            <span class="fw-bold @(esHoy ? "text-primary" : "")" style="font-size: 1.2rem;">@diaFecha.Day</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <h5 class="text-muted mb-4" style="font-size: 1.1rem;">@DateTime.Now.ToString("dddd , d 'de' MMMM")</h5>
+
+        @* --- LISTA DE CITAS --- *@
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var cita in Model)
+                {
+                    <div class="col-12 mb-3">
+                        <div class="card border-0 shadow-sm p-2" style="border-radius: 15px;">
+                            <div class="card-body d-flex align-items-center">
+                                @* Hora *@
+                                <div class="text-center border-end pe-4" style="min-width: 100px;">
+                                    <h5 class="mb-0 fw-bold">@cita.Hora</h5>
+                                    <small class="text-muted">@cita.DuracionMinutos min</small>
+                                </div>
+
+                                @* Info Paciente *@
+                                <div class="ps-4 flex-grow-1">
+                                    <h5 class="fw-bold mb-1">@cita.NombrePaciente</h5>
+                                    <p class="text-muted mb-1" style="font-size: 0.9rem;">@cita.Tratamiento</p>
+                                    <small class="text-muted"><i class="bi bi-person-circle me-1"></i> @cita.Especialista</small>
+                                </div>
+
+                                @* Estado y Acciones *@
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (cita.Estado == "Completada")
+                                    {
+                                        <span class="badge" style="background-color: #c8e6c9; color: #25793a; border-radius: 20px; padding: 10px 20px; font-weight: 600;">Completada</span>
+                                    }
+                                    else if (cita.Estado == "Incompleta" || cita.Estado == "Faltó")
+                                    {
+                                        <span class="badge" style="background-color: #ffcdd2; color: #b71c1c; border-radius: 20px; padding: 10px 20px; font-weight: 600;">Incompleta</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge" style="background-color: #f0f2f5; color: #5f6368; border-radius: 20px; padding: 10px 20px; font-weight: 600;">Pendiente</span>
+                                    }
+
+                                    @* Botón de menú (Tres puntos) *@
+                                    <div class="dropdown">
+                                        <button class="btn btn-light rounded-circle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px; background: #e9ecef;">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow" style="border-radius: 15px; min-width: 180px;">
+                                            <li>
+                                                @* ENLACE AL HISTORIAL *@
+                                                <a class="dropdown-item py-2" asp-controller="Historia" asp-action="Index"
+                                                   asp-route-pacienteId="@cita.PacienteId" asp-route-nombre="@cita.NombrePaciente">
+                                                    <i class="bi bi-file-earmark-medical text-primary me-2"></i> Llenar Historial
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item py-2" asp-action="CambiarEstado" asp-route-id="@cita.Id" asp-route-nuevoEstado="Completada">
+                                                    <i class="bi bi-check-circle-fill text-success me-2"></i> Completada
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item py-2" asp-action="CambiarEstado" asp-route-id="@cita.Id" asp-route-nuevoEstado="Incompleta">
+                                                    <i class="bi bi-x-circle-fill text-danger me-2"></i> Faltó
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center p-5">
+                    <p class="text-muted">No hay citas programadas.</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* --- VISTA ADMIN --- *@
+        <div class="d-flex justify-content-between align-items-center pt-4 mb-4">
+            <div>
+                <h1 class="fw-bold mb-0">Gestión de Agenda</h1>
+                <p class="text-muted">Panel administrativo de citas</p>
+            </div>
+            <button class="btn btn-primary shadow-sm px-4 py-2" style="background-color: #2c5d7d; border-radius: 10px; border: none;" data-bs-toggle="modal" data-bs-target="#modalNuevaCita">
+                <i class="bi bi-calendar-plus me-2"></i> Nueva cita
+            </button>
+        </div>
+
+        <div class="table-responsive bg-white shadow-sm p-3" style="border-radius: 15px;">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Paciente</th>
+                        <th>Tratamiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cita in Model)
+                    {
+                        <tr>
+                            <td><strong>@cita.Hora</strong></td>
+                            <td>@cita.NombrePaciente</td>
+                            <td><span class="text-primary fw-bold">@cita.Tratamiento</span></td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border">@cita.Estado</span>
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Editar" asp-route-id="@cita.Id"><i class="bi bi-pencil"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@* --- MODAL NUEVA CITA (ADMIN) --- *@
+@if (User.IsInRole("Admin"))
+{
+    <div class="modal fade" id="modalNuevaCita" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+                <div class="modal-body p-4">
+                    <h4 class="fw-bold mb-4">Agendar Nueva Cita</h4>
+                    <form asp-action="CrearCita" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Paciente</label>
+                            <select name="PacienteId" class="form-select border-0 bg-light" style="border-radius: 10px;" required>
+                                <option value="">Seleccione...</option>
+                                @if (ViewBag.Pacientes != null)
+                                {
+                                    @foreach (var p in (List<FisioterapiaWeb.Models.Paciente>)ViewBag.Pacientes)
+                                    {
+                                        <option value="@p.Id">@p.Nombre @p.Apellido</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Fecha</label>
+                                <input type="date" name="Fecha" class="form-control border-0 bg-light" style="border-radius: 10px;" required />
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Hora</label>
+                                <input type="time" name="Hora" class="form-control border-0 bg-light" style="border-radius: 10px;" required />
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Tratamiento</label>
+                            <select name="Tratamiento" class="form-select border-0 bg-light" style="border-radius: 10px;">
+                                @if (ViewBag.Terapias != null)
+                                {
+                                    @foreach (var t in (List<FisioterapiaWeb.Models.Terapia>)ViewBag.Terapias)
+                                    {
+                                        <option value="@t.Nombre">@t.Nombre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: #2c5d7d; border: none; border-radius: 10px;">Guardar Cita</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
