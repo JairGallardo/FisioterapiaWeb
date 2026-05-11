@@ -13,7 +13,6 @@ namespace FisioterapiaWeb.Controllers
 
         public async Task<IActionResult> Index(string buscar, string estado)
         {
-            // 1. Cargar Citas
             var lista = await _client.Child("Citas").OnceAsync<Cita>();
             var resultado = lista.Select(x => {
                 var c = x.Object;
@@ -32,7 +31,6 @@ namespace FisioterapiaWeb.Controllers
                 resultado = resultado.Where(x => x.Estado == estado);
             }
 
-            // 2. Cargar datos para el Modal de Nueva Cita (Importante)
             var listaPacientes = await _client.Child("Pacientes").OnceAsync<Paciente>();
             ViewBag.Pacientes = listaPacientes.Select(x => new Paciente
             {
@@ -53,17 +51,17 @@ namespace FisioterapiaWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearCita(Cita nuevaCita)
+        public async Task<IActionResult> Nueva(Cita nueva)
         {
-            var paciente = await _client.Child("Pacientes").Child(nuevaCita.PacienteId).OnceSingleAsync<Paciente>();
+            var paciente = await _client.Child("Pacientes").Child(nueva.PacienteId).OnceSingleAsync<Paciente>();
             if (paciente != null)
             {
-                nuevaCita.NombrePaciente = $"{paciente.Nombre} {paciente.Apellido}";
+                nueva.NombrePaciente = $"{paciente.Nombre} {paciente.Apellido}";
             }
-            nuevaCita.Estado = "Reservado"; // Estado inicial según tu diseño
-            nuevaCita.Lugar = "Consultorio 1";
+            nueva.Estado = "Reservado";
+            nueva.Lugar = "Consultorio 1";
 
-            await _client.Child("Citas").PostAsync(nuevaCita);
+            await _client.Child("Cita").PostAsync(nueva);
             return RedirectToAction("Index");
         }
 
@@ -73,7 +71,6 @@ namespace FisioterapiaWeb.Controllers
             if (cita == null) return NotFound();
             cita.Id = id;
 
-            // Recargar listas para los select del editar
             var listaPacientes = await _client.Child("Pacientes").OnceAsync<Paciente>();
             ViewBag.Pacientes = listaPacientes.Select(x => new Paciente { Id = x.Key, Nombre = x.Object.Nombre, Apellido = x.Object.Apellido }).ToList();
 

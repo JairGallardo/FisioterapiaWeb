@@ -10,7 +10,7 @@
         public string Tratamiento { get; set; }
         public string Especialista { get; set; }
         public string Lugar { get; set; }
-        public string Estado { get; set; } // "Pendiente", "Confirmada", etc.
+        public string Estado { get; set; }
         public int DuracionMinutos { get; set; }
     }
 }

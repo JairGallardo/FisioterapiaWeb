@@ -15,7 +15,6 @@ namespace FisioterapiaWeb.Controllers
 
         public async Task<IActionResult> Index(string pacienteId, string nombre)
         {
-            // VALIDACIÓN: Si el ID es nulo, redirigir a la Agenda para evitar el crash
             if (string.IsNullOrEmpty(pacienteId))
             {
                 return RedirectToAction("Index", "Cita");
@@ -38,7 +37,6 @@ namespace FisioterapiaWeb.Controllers
             }
             catch
             {
-                // Si hay error de conexión o URL, enviamos lista vacía
                 ViewBag.PacienteId = pacienteId;
                 ViewBag.Nombre = nombre;
                 return View(new List<FichaClinica>());

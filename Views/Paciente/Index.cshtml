@@ -1,7 +1,6 @@
 ﻿@model List<FisioterapiaWeb.Models.Paciente>
 
 <div class="container-fluid">
-    @* Encabezado *@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
             <h1 class="fw-bold mb-0">Paciente</h1>
@@ -12,7 +11,6 @@
         </button>
     </div>
 
-    @* Buscador y Filtros *@
     <div class="row my-4 align-items-center">
         <div class="col-md-7">
             <div class="input-group bg-white shadow-sm" style="border-radius: 15px; overflow: hidden;">
@@ -29,7 +27,6 @@
         </div>
     </div>
 
-    @* Grid de Tarjetas *@
     <div class="row" id="pacientesGrid">
         @foreach (var p in Model)
         {

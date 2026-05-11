@@ -13,7 +13,6 @@
         </div>
         <div class="card-body p-4">
             <form asp-action="Actualizar" method="post">
-                @* Campos ocultos necesarios para no perder datos en Firebase *@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="NombrePaciente" />
                 <input type="hidden" asp-for="Lugar" />

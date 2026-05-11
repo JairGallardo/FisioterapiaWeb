@@ -3,7 +3,6 @@
 <div class="container-fluid">
     @if (User.IsInRole("Fisioterapeuta"))
     {
-        @* --- ENCABEZADO Y CALENDARIO --- *@
         <div class="row mb-2">
             <div class="col-12">
                 <h1 class="fw-bold" style="font-size: 2.5rem; font-family: 'Playfair Display', serif;">Agenda</h1>
@@ -11,7 +10,6 @@
             </div>
         </div>
 
-        @* Bloque de Calendario Semanal *@
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
             <div class="card-body p-4 text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -39,7 +37,6 @@
 
         <h5 class="text-muted mb-4" style="font-size: 1.1rem;">@DateTime.Now.ToString("dddd , d 'de' MMMM")</h5>
 
-        @* --- LISTA DE CITAS --- *@
         <div class="row">
             @if (Model != null && Model.Any())
             {
@@ -48,20 +45,17 @@
                     <div class="col-12 mb-3">
                         <div class="card border-0 shadow-sm p-2" style="border-radius: 15px;">
                             <div class="card-body d-flex align-items-center">
-                                @* Hora *@
                                 <div class="text-center border-end pe-4" style="min-width: 100px;">
                                     <h5 class="mb-0 fw-bold">@cita.Hora</h5>
                                     <small class="text-muted">@cita.DuracionMinutos min</small>
                                 </div>
 
-                                @* Info Paciente *@
                                 <div class="ps-4 flex-grow-1">
                                     <h5 class="fw-bold mb-1">@cita.NombrePaciente</h5>
                                     <p class="text-muted mb-1" style="font-size: 0.9rem;">@cita.Tratamiento</p>
                                     <small class="text-muted"><i class="bi bi-person-circle me-1"></i> @cita.Especialista</small>
                                 </div>
 
-                                @* Estado y Acciones *@
                                 <div class="d-flex align-items-center gap-3">
                                     @if (cita.Estado == "Completada")
                                     {
@@ -76,14 +70,13 @@
                                         <span class="badge" style="background-color: #f0f2f5; color: #5f6368; border-radius: 20px; padding: 10px 20px; font-weight: 600;">Pendiente</span>
                                     }
 
-                                    @* Botón de menú (Tres puntos) *@
+                                   
                                     <div class="dropdown">
                                         <button class="btn btn-light rounded-circle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px; background: #e9ecef;">
                                             <i class="bi bi-three-dots"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow" style="border-radius: 15px; min-width: 180px;">
                                             <li>
-                                                @* ENLACE AL HISTORIAL *@
                                                 <a class="dropdown-item py-2" asp-controller="Historia" asp-action="Index"
                                                    asp-route-pacienteId="@cita.PacienteId" asp-route-nombre="@cita.NombrePaciente">
                                                     <i class="bi bi-file-earmark-medical text-primary me-2"></i> Llenar Historial
@@ -118,7 +111,6 @@
     }
     else
     {
-        @* --- VISTA ADMIN --- *@
         <div class="d-flex justify-content-between align-items-center pt-4 mb-4">
             <div>
                 <h1 class="fw-bold mb-0">Gestión de Agenda</h1>
@@ -161,7 +153,6 @@
     }
 </div>
 
-@* --- MODAL NUEVA CITA (ADMIN) --- *@
 @if (User.IsInRole("Admin"))
 {
     <div class="modal fade" id="modalNuevaCita" tabindex="-1">
@@ -169,7 +160,7 @@
             <div class="modal-content border-0 shadow" style="border-radius: 20px;">
                 <div class="modal-body p-4">
                     <h4 class="fw-bold mb-4">Agendar Nueva Cita</h4>
-                    <form asp-action="CrearCita" method="post">
+                    <form asp-action="Nueva" method="post">
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Paciente</label>
                             <select name="PacienteId" class="form-select border-0 bg-light" style="border-radius: 10px;" required>

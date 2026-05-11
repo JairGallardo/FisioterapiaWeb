@@ -8,14 +8,11 @@ namespace FisioterapiaWeb.Models
         public string? PacienteId { get; set; }
         public DateTime Fecha { get; set; }
         public string? NombrePaciente { get; set; }
-
-        // Propiedades de la Ficha
         public string? MotivoConsulta { get; set; }
         public string? Diagnostico { get; set; }
         public string? Evolucion { get; set; }
         public string? Especialista { get; set; }
 
-        // Nuevos campos para la interfaz
         public string? Edad { get; set; }
         public string? Genero { get; set; }
         public string? Telefono { get; set; }

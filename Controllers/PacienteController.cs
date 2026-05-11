@@ -34,14 +34,12 @@ namespace FisioterapiaWeb.Controllers
             return RedirectToAction("Index");
         }
 
-        // --- NUEVAS FUNCIONES ---
-
         public async Task<IActionResult> Editar(string id)
         {
             var p = await _client.Child("Pacientes").Child(id).OnceSingleAsync<Paciente>();
             if (p == null) return NotFound();
             p.Id = id;
-            return View(p); // Debes tener una vista Editar.cshtml similar a Crear.cshtml
+            return View(p);
         }
 
         [HttpPost]

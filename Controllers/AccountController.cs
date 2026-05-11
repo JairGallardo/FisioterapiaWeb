@@ -33,7 +33,7 @@ namespace FisioterapiaWeb.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, usuario),
-                    new Claim(ClaimTypes.Role, rol) // Aquí se asigna el rol correcto
+                    new Claim(ClaimTypes.Role, rol)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
