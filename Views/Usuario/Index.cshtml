@@ -1,0 +1,415 @@
+﻿@model IEnumerable<FisioterapiaWeb.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Usuarios";
+    string estadoActual = ViewBag.EstadoActual ?? "Todos";
+}
+
+<style>
+    .header-seccion {
+        color: #1e293b;
+        font-family: 'Georgia', serif;
+        font-size: 2.2rem;
+    }
+
+    .sub-seccion {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .search-input {
+        border-radius: 30px;
+        padding-left: 45px;
+        border: 1px solid #e2e8f0;
+        height: 48px;
+    }
+
+    .search-container {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        top: 14px;
+        color: #94a3b8;
+    }
+
+    .btn-filtro {
+        border-radius: 8px;
+        padding: 8px 20px;
+        background-color: #6a96b3;
+        color: white;
+        border: none;
+        margin-left: 5px;
+        opacity: 0.7;
+    }
+
+        .btn-filtro.active {
+            opacity: 1;
+            background-color: #4a738f;
+            font-weight: bold;
+        }
+
+    .btn-nuevo {
+        background-color: #1e557a;
+        color: white;
+        border-radius: 20px;
+        padding: 8px 24px;
+        border: none;
+    }
+
+    .user-card {
+        background: white;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .badge-activo {
+        background-color: #e6f7ed;
+        color: #2e7d32;
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 12px;
+    }
+
+    .badge-inactivo {
+        background-color: #ffebee;
+        color: #c62828;
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 12px;
+    }
+
+    .card-avatar {
+        width: 42px;
+        height: 42px;
+        background-color: #deeaf3;
+        color: #6a96b3;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .card-label {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-bottom: 1px;
+    }
+
+    .card-value {
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
+    .btn-action-edit {
+        background-color: #1e425a;
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .btn-action-delete {
+        background-color: #b32626;
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
+
+    .modal-custom {
+        border-radius: 16px;
+        border: none;
+    }
+
+    .modal-custom-header {
+        border-bottom: none;
+        padding: 25px 25px 5px 25px;
+    }
+
+    .modal-custom-body {
+        padding: 5px 25px 25px 25px;
+    }
+
+    .modal-custom-title {
+        font-family: 'Georgia', serif;
+        font-size: 1.8rem;
+        color: #1e293b;
+    }
+
+    .modal-input {
+        background-color: #e2e8f0;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+    }
+</style>
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="header-seccion mb-0">Usuarios</h1>
+            <p class="sub-seccion mb-0">@ViewBag.TotalUsuarios usuarios registrados</p>
+        </div>
+        <button class="btn-nuevo" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+            <i class="bi bi-person-plus me-2"></i> Nuevo usuario
+        </button>
+    </div>
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <form method="get" action="@Url.Action("Index", "Usuario")" id="searchForm">
+                <input type="hidden" name="estado" value="@estadoActual" />
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control search-input" placeholder="Buscar por nombre o DNI" onchange="this.form.submit()">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            <a class="btn-filtro @(estadoActual == "Todos" ? "active" : "")" href="@Url.Action("Index", "Usuario", new { searchString = ViewBag.SearchString, estado = "Todos" })">Todos</a>
+            <a class="btn-filtro @(estadoActual == "Activo" ? "active" : "")" href="@Url.Action("Index", "Usuario", new { searchString = ViewBag.SearchString, estado = "Activo" })">Activo</a>
+            <a class="btn-filtro @(estadoActual == "Inactivo" ? "active" : "")" href="@Url.Action("Index", "Usuario", new { searchString = ViewBag.SearchString, estado = "Inactivo" })">Inactivo</a>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var usuario in Model)
+        {
+            <div class="col-md-6">
+                <div class="user-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="card-avatar me-3">
+                                @(usuario.NombreCompleto.Substring(0, Math.Min(2, usuario.NombreCompleto.Length)).ToUpper())
+                            </div>
+                            <div>
+                                <h5 class="mb-0 fw-bold" style="color:#1e293b; font-size:1.1rem;">@usuario.NombreCompleto</h5>
+                            </div>
+                        </div>
+                        <span class="@(usuario.Estado == "Activo" ? "badge-activo" : "badge-inactivo")">@usuario.Estado</span>
+                    </div>
+
+                    <div class="row px-2">
+                        <div class="col-6">
+                            <div class="card-label">DNI</div>
+                            <div class="card-value">@usuario.DNI</div>
+                            <div class="card-label">Teléfono</div>
+                            <div class="card-value">@(string.IsNullOrEmpty(usuario.Telefono) ? "-" : usuario.Telefono)</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card-label">Cargo</div>
+                            <div class="card-value">@usuario.Rol</div>
+                            <div class="card-label">Ingreso</div>
+                            <div class="card-value">@usuario.FechaIngreso.ToString("dd/MM/yy")</div>
+                        </div>
+                    </div>
+
+                    <div class="text-end mt-2">
+                        <button class="btn-action-edit" onclick='abrirEditarModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(usuario)))' type="button">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn-action-delete" onclick="abrirEliminarModal(@usuario.Id)" type="button">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-custom">
+            <div class="modal-custom-header">
+                <h5 class="modal-custom-title">Nuevo usuario</h5>
+            </div>
+            <form asp-action="Crear" method="post">
+                <div class="modal-custom-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre completo*</label>
+                        <input type="text" name="NombreCompleto" class="form-control modal-input" required />
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">DNI</label>
+                            <input type="text" name="DNI" class="form-control modal-input" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Teléfono</label>
+                            <div class="input-group">
+                                <input type="text" name="Telefono" class="form-control modal-input" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Edad</label>
+                            <input type="number" name="Edad" class="form-control modal-input" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Rol</label>
+                            <select name="Rol" class="form-select modal-input">
+                                <option value="Gerente">Gerente</option>
+                                <option value="Recepcionista">Recepcionista</option>
+                                <option value="Fisioterapeuta">Fisioterapeuta</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Correo</label>
+                            <input type="email" name="Correo" class="form-control modal-input" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Contraseña</label>
+                            <input type="password" name="Contrasena" class="form-control modal-input" value="*****" required />
+                        </div>
+                    </div>
+                    <div class="mb-4 col-md-6">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select name="Estado" class="form-select modal-input">
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4" style="background-color:#1e557a;">Añadir Usuario</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-custom">
+            <div class="modal-custom-header">
+                <h5 class="modal-custom-title">Editar usuario</h5>
+            </div>
+            <form asp-action="Editar" method="post">
+                <input type="hidden" name="Id" id="edit_id" />
+                <div class="modal-custom-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre completo*</label>
+                        <input type="text" name="NombreCompleto" id="edit_nombre" class="form-control modal-input" required />
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">DNI</label>
+                            <input type="text" name="DNI" id="edit_dni" class="form-control modal-input" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Teléfono</label>
+                            <input type="text" name="Telefono" id="edit_telefono" class="form-control modal-input" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Edad</label>
+                            <input type="number" name="Edad" id="edit_edad" class="form-control modal-input" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Rol</label>
+                            <select name="Rol" id="edit_rol" class="form-select modal-input">
+                                <option value="Gerente">Gerente</option>
+                                <option value="Recepcionista">Recepcionista</option>
+                                <option value="Fisioterapeuta">Fisioterapeuta</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Correo</label>
+                            <input type="email" name="Correo" id="edit_correo" class="form-control modal-input" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Contraseña</label>
+                            <input type="password" name="Contrasena" id="edit_contrasena" class="form-control modal-input" required />
+                        </div>
+                    </div>
+                    <div class="mb-4 col-md-6">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select name="Estado" id="edit_estado" class="form-select modal-input">
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4" style="background-color:#1e557a;">Guardar Cambios</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminarUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-custom p-4">
+            <div class="modal-body text-center">
+                <h4 class="mb-4 fw-normal" style="font-family: 'Georgia', serif;">¿Eliminar usuario?</h4>
+                <form asp-action="Eliminar" method="post">
+                    <input type="hidden" name="id" id="delete_id" />
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4" style="background-color:#a81c1c; border:none;">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirEditarModal(usuario) {
+            if (!usuario) return;
+
+            document.getElementById('edit_id').value = usuario.id !== undefined ? usuario.id : usuario.Id;
+            document.getElementById('edit_nombre').value = usuario.nombreCompleto !== undefined ? usuario.nombreCompleto : usuario.NombreCompleto;
+            document.getElementById('edit_dni').value = usuario.dni !== undefined ? usuario.dni : usuario.DNI;
+            document.getElementById('edit_telefono').value = (usuario.telefono !== undefined ? usuario.telefono : usuario.Telefono) || '';
+            document.getElementById('edit_edad').value = usuario.edad !== undefined ? usuario.edad : usuario.Edad;
+            document.getElementById('edit_rol').value = usuario.rol !== undefined ? usuario.rol : usuario.Rol;
+            document.getElementById('edit_correo').value = usuario.correo !== undefined ? usuario.correo : usuario.Correo;
+            document.getElementById('edit_contrasena').value = usuario.contrasena !== undefined ? usuario.contrasena : usuario.Contrasena;
+            document.getElementById('edit_estado').value = usuario.estado !== undefined ? usuario.estado : usuario.Estado;
+
+            var modalElement = document.getElementById('modalEditarUsuario');
+            var myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
+        }
+
+        function abrirEliminarModal(id) {
+            document.getElementById('delete_id').value = id;
+            var modalElement = document.getElementById('modalEliminarUsuario');
+            var myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
+        }
+    </script>
+}

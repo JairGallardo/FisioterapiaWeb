@@ -1,0 +1,293 @@
+﻿@model List<FisioterapiaWeb.Models.FichaClinica>
+@using System.Security.Claims
+
+<div class="container-fluid px-4 py-3">
+    <div class="mb-4">
+        <h1 class="fw-bold m-0" style="font-family: 'Playfair Display', serif; font-size: 2.3rem; color: #1a1a1a;">Historial clínico</h1>
+        <p class="text-muted small mb-0">Información de cliente</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 bg-white" style="border-radius: 16px;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                    <h5 class="fw-bold mb-0" id="lblFichaTitulo" style="letter-spacing: 0.5px; color: #2c5d7d;">Ficha de Fisioterapia</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-light text-secondary border-0 px-3 py-2 fw-normal" id="lblFichaModo" style="border-radius: 8px; font-size: 0.8rem;">Nueva Entrada</span>
+                        <span class="badge bg-dark text-white border-0 px-3 py-2 fw-normal" style="border-radius: 8px; font-size: 0.8rem;">@DateTime.Now.ToString("dd/MM/yy")</span>
+                    </div>
+                </div>
+
+                <form asp-action="GuardarNota" method="post" id="formFicha">
+                    <input type="hidden" name="PacienteId" value="@ViewBag.PacienteId" />
+                    <input type="hidden" name="nombrePaciente" value="@ViewBag.Nombre" />
+                    <input type="hidden" id="txtNotaId" name="Id" value="" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold text-secondary small mb-1">Nombre</label>
+                            <input type="text" class="form-control border-0 bg-light px-3 py-2" value="@ViewBag.Nombre" readonly style="border-radius: 10px; font-size: 0.95rem;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-secondary small mb-1">Edad</label>
+                            <input type="text" id="txtEdad" name="Edad" class="form-control border-0 bg-light px-3 py-2" style="border-radius: 10px; font-size: 0.95rem;" placeholder="00">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-secondary small mb-1">Género</label>
+                            <div class="d-flex gap-3 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" value="Masculino" id="m">
+                                    <label class="form-check-label small text-muted" for="m">Masculino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" value="Femenino" id="f">
+                                    <label class="form-check-label small text-muted" for="f">Femenino</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold text-secondary small mb-1">Teléfono</label>
+                            <input type="text" id="txtTelefono" name="Telefono" class="form-control border-0 bg-light px-3 py-2" style="border-radius: 10px; font-size: 0.95rem;" placeholder="Ingrese número de teléfono">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small mb-1">Diagnóstico</label>
+                        <textarea id="txtDiagnostico" name="Diagnostico" class="form-control border-0 bg-light px-3 py-2" rows="3" style="border-radius: 12px; font-size: 0.95rem;" placeholder="El paciente presenta..."></textarea>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold text-secondary small d-block mb-2 border-bottom pb-1">Aspecto funcional</label>
+                            <div class="d-flex flex-column gap-1">
+                                @foreach (var asp in new[] { "Neuro desarrollo", "Locomoción", "Actividades de la vida diaria", "Actividades escolares", "Actividades laborales" })
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="AspectoFuncional" value="@asp" id="asp_@asp.Replace(" ", "")">
+                                        <label class="form-check-label small text-muted" for="asp_@asp.Replace(" ", "")">@asp</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold text-secondary small mb-1">Tratamiento y Evolución</label>
+                            <textarea id="txtTratamiento" name="Tratamiento" class="form-control border-0 bg-light px-3 py-2" rows="5" style="border-radius: 12px; font-size: 0.95rem;" placeholder="Detalles de los ejercicios y evolución..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-2">
+                        <button type="button" id="btnCancelarEdicion" class="btn btn-light text-secondary px-4 d-none" onclick="restablecerFormulario()" style="border-radius: 10px; font-size: 0.9rem;">Cancelar Edición</button>
+                        <button type="submit" id="btnGuardarFicha" class="btn px-4 text-white shadow-sm" style="background-color: #2c5d7d; border-radius: 10px; font-size: 0.9rem; fw-medium">Guardar Ficha</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 bg-white h-100" style="border-radius: 16px;">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-clock-history me-2 text-dark fs-5"></i>
+                    <h5 class="fw-bold mb-0 text-dark" style="letter-spacing: 0.3px;">Historial Clínico</h5>
+                </div>
+                <p class="text-muted small mb-4">Haga clic en una etiqueta de fecha para desplegar la nota completa.</p>
+
+                <div class="flex-grow-1 overflow-auto pe-1" style="max-height: 540px;" id="accordionNotas">
+                    @if (Model != null && Model.Any())
+                    {
+                        int index = 0;
+                        @foreach (var nota in Model)
+                        {
+                            index++;
+                            bool esCreador = nota.RecepcionistaEmail == User.Identity?.Name;
+                            bool esGerente = User.IsInRole("Gerente");
+
+                            string claseFondo = nota.EstaResaltado ? "bg-warning bg-opacity-10 border-start border-4 border-warning" : "bg-white border border-light";
+
+                            string diagEscapado = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(nota.Diagnostico ?? "");
+                            string tratEscapado = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(nota.Tratamiento ?? "");
+                            string comEscapado = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(nota.ComentarioGerente ?? "");
+
+                            <div class="card border-0 mb-3 shadow-sm @claseFondo" style="border-radius: 12px; transition: all 0.2s ease;">
+                                <div class="card-header p-3 border-0 bg-transparent d-flex justify-content-between align-items-start"
+                                     data-bs-toggle="collapse" data-bs-target="#collapse_@index" style="cursor: pointer;">
+                                    <div class="w-100 me-2">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="badge bg-dark px-2 py-1 text-white fw-normal" style="font-size: 0.72rem; border-radius: 6px;">
+                                                @nota.Fecha.ToString("dd/MM/yyyy HH:mm")
+                                            </span>
+                                            @if (nota.EstaResaltado)
+                                            {
+                                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.68rem; border-radius: 6px;">CRÍTICO</span>
+                                            }
+                                        </div>
+                                        <h6 class="fw-bold text-dark text-truncate mb-1" style="max-width: 260px; font-size: 0.92rem;">
+                                            @(string.IsNullOrEmpty(nota.Diagnostico) ? "Sin Diagnóstico" : nota.Diagnostico)
+                                        </h6>
+                                        <span class="text-muted d-block" style="font-size: 0.75rem;">
+                                            Por: <span class="fw-medium text-secondary">@nota.Recepcionista</span>
+                                        </span>
+                                    </div>
+                                    <i class="bi bi-chevron-down text-muted small mt-1"></i>
+                                </div>
+
+                                <div id="collapse_@index" class="collapse" data-bs-parent="#accordionNotas">
+                                    <div class="card-body pt-0 px-3 pb-3 text-secondary" style="font-size: 0.85rem;">
+                                        <hr class="my-2 opacity-25">
+
+                                        <div class="mb-2 row g-0">
+                                            <div class="col-6"><strong>Edad:</strong> @nota.Edad años</div>
+                                            <div class="col-6"><strong>Género:</strong> @nota.Genero</div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <strong>Aspecto Funcional:</strong>
+                                            <span class="text-dark bg-light px-2 py-0.5 rounded" style="font-size:0.8rem;">@nota.AspectoFuncional</span>
+                                        </div>
+
+                                        <div class="bg-light p-2.5 rounded mb-2 text-dark" style="font-size: 0.82rem; border-radius: 8px; line-height: 1.4;">
+                                            <strong class="text-secondary d-block mb-1" style="font-size:0.78rem;">Evolución y Tratamiento:</strong>
+                                            @nota.Tratamiento
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(nota.ComentarioGerente))
+                                        {
+                                            <div class="p-2 my-2 bg-info bg-opacity-10 py-1 rounded" style="border-left: 3px solid #0dcaf0;">
+                                                <small class="fw-bold text-info d-block" style="font-size: 0.75rem;"><i class="bi bi-chat-left-quote-fill me-1"></i> Feedback Gerencia:</small>
+                                                <p class="mb-0 text-dark text-italic" style="font-size: 0.8rem;">@nota.ComentarioGerente</p>
+                                            </div>
+                                        }
+
+                                        <div class="d-flex justify-content-end gap-1 mt-3 pt-2 border-top border-light">
+                                            @if (esGerente || esCreador)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-link text-decoration-none text-primary py-0 px-2 fw-medium" style="font-size:0.78rem;"
+                                                        onclick="cargarParaEditar('@nota.Id', '@nota.Edad', '@nota.Genero', '@nota.Telefono', '@diagEscapado', '@nota.AspectoFuncional', '@tratEscapado')">
+                                                    <i class="bi bi-pencil me-1"></i>Editar
+                                                </button>
+                                            }
+
+                                            @if (esGerente)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-link text-decoration-none text-warning py-0 px-2 fw-medium" style="font-size:0.78rem;"
+                                                        onclick="abrirPanelGerente('@nota.Id', '@comEscapado', '@nota.EstaResaltado.ToString().ToLower()')">
+                                                    <i class="bi bi-shield-lock me-1"></i>Gestionar
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-folder-x fs-2"></i>
+                            <p class="small mt-2">No hay notas previas registradas para este paciente.</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-3 pt-2">
+                    <a asp-controller="Cita" asp-action="Index" class="btn text-white py-2 w-100 shadow-sm" style="background-color: #2c5d7d; border-radius: 10px; font-size: 0.9rem;">Atrás a Citas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGerente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="fw-bold text-dark m-0 d-flex align-items-center"><i class="bi bi-shield-check me-2 text-warning fs-5"></i>Herramientas de Auditoría</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="GestionarGerente" method="post">
+                <input type="hidden" name="pacienteId" value="@ViewBag.PacienteId" />
+                <input type="hidden" name="nombrePaciente" value="@ViewBag.Nombre" />
+                <input type="hidden" id="modalGerenteNotaId" name="notaId" />
+
+                <div class="modal-body py-3">
+                    <p class="text-muted" style="font-size: 0.82rem;">Agrega anotaciones de control o destaca la importancia de esta evolución médica.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">Observación del Supervisor</label>
+                        <textarea class="form-control border-0 bg-light" id="modalGerenteComentario" name="comentario" rows="3" style="border-radius:10px; font-size: 0.9rem;" placeholder="Escriba anotaciones..."></textarea>
+                    </div>
+
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="modalGerenteResaltar" name="resaltar" value="true">
+                        <label class="form-check-label fw-semibold text-danger small" for="modalGerenteResaltar"><i class="bi bi-star-fill me-1"></i> Resaltar Nota (Caso Crítico)</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light text-secondary" data-bs-dismiss="modal" style="border-radius:10px; font-size: 0.85rem;">Cerrar</button>
+                    <button type="submit" class="btn btn-dark" style="border-radius:10px; font-size: 0.85rem;">Aplicar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let mGerente;
+    document.addEventListener("DOMContentLoaded", function () {
+        mGerente = new bootstrap.Modal(document.getElementById('modalGerente'));
+    });
+
+    function cargarParaEditar(id, edad, genero, telefono, diagnostico, aspecto, tratamiento) {
+        document.getElementById('lblFichaTitulo').innerText = "Modificar Ficha Clínica";
+        document.getElementById('lblFichaModo').innerText = "Modo Edición";
+        document.getElementById('txtNotaId').value = id;
+        document.getElementById('txtEdad').value = edad;
+        document.getElementById('txtTelefono').value = telefono;
+
+        document.getElementById('txtDiagnostico').value = decodeURIComponent(JSON.parse('"' + diagnostico + '"'));
+        document.getElementById('txtTratamiento').value = decodeURIComponent(JSON.parse('"' + tratamiento + '"'));
+
+        let rbG = document.querySelector(`input[name="Genero"][value="${genero}"]`);
+        if (rbG) rbG.checked = true;
+
+        let rbA = document.querySelector(`input[name="AspectoFuncional"][value="${aspecto}"]`);
+        if (rbA) rbA.checked = true;
+
+        document.getElementById('btnCancelarEdicion').classList.remove('d-none');
+        document.getElementById('btnGuardarFicha').innerText = "Actualizar Entrada";
+
+        document.getElementById('formFicha').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function restablecerFormulario() {
+        document.getElementById('lblFichaTitulo').innerText = "Ficha de Fisioterapia";
+        document.getElementById('lblFichaModo').innerText = "Nueva Entrada";
+        document.getElementById('txtNotaId').value = "";
+        document.getElementById('txtEdad').value = "";
+        document.getElementById('txtTelefono').value = "";
+        document.getElementById('txtDiagnostico').value = "";
+        document.getElementById('txtTratamiento').value = "";
+
+        let radioG = document.querySelector('input[name="Genero"]:checked');
+        if (radioG) radioG.checked = false;
+
+        let radioA = document.querySelector('input[name="AspectoFuncional"]:checked');
+        if (radioA) radioA.checked = false;
+
+        document.getElementById('btnCancelarEdicion').classList.add('d-none');
+        document.getElementById('btnGuardarFicha').innerText = "Guardar Ficha";
+    }
+
+    function abrirPanelGerente(notaId, comentario, esResaltado) {
+        document.getElementById('modalGerenteNotaId').value = notaId;
+        try {
+            document.getElementById('modalGerenteComentario').value = decodeURIComponent(JSON.parse('"' + comentario + '"'));
+        } catch {
+            document.getElementById('modalGerenteComentario').value = comentario;
+        }
+        document.getElementById('modalGerenteResaltar').checked = (esResaltado === "true");
+        mGerente.show();
+    }
+</script>

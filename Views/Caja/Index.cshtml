@@ -1,0 +1,185 @@
+﻿@model List<FisioterapiaWeb.Models.Transaccion>
+
+<div class="container-fluid pt-4 px-5" style="background-color: #e9ecef; min-height: 100vh;">
+    <div class="mb-5">
+        <h1 class="display-5 fw-normal" style="color: #000; font-family: 'Georgia', serif;">Caja</h1>
+        <p class="text-muted">Servicios disponibles en el centro</p>
+    </div>
+
+    @if (User.IsInRole("Gerente"))
+    {
+        <div class="row g-4 mb-5 mx-auto" style="max-width: 1100px;">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 text-center bg-white" style="border-radius: 8px;">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-family: 'Georgia', serif;">Ingresos de Hoy</span>
+                    <h2 class="fw-bold my-2" style="color: #333; font-family: 'Georgia', serif;">
+                        s/.@Model.Where(t => t.Fecha.Date == DateTime.Today).Sum(t => t.Monto).ToString("N2")
+                    </h2>
+                    <small class="text-success fw-semibold">Caja Abierta</small>
+                </div>
+            </div>
+            <div class="col-md-4" onclick="abrirModalSemanal()" style="cursor: pointer;">
+                <div class="card border-0 shadow-sm p-4 text-center text-white KPI-card" style="border-radius: 8px; background-color: #366d91;">
+                    <span class="small fw-bold text-uppercase" style="font-family: 'Georgia', serif; opacity: 0.9;">Cuadro Semanal</span>
+                    <h2 class="fw-bold my-2" style="font-family: 'Georgia', serif;">
+                        @{
+                            int diasLunes = (int)DateTime.Today.DayOfWeek - (int)DayOfWeek.Monday;
+                            if (diasLunes < 0) diasLunes += 7;
+                            var iniSem = DateTime.Today.AddDays(-diasLunes);
+                        }
+                        s/.@Model.Where(t => t.Fecha >= iniSem).Sum(t => t.Monto).ToString("N2")
+                    </h2>
+                    <small class="text-white-50">Click para ver historial</small>
+                </div>
+            </div>
+            <div class="col-md-4" onclick="abrirModalMensual()" style="cursor: pointer;">
+                <div class="card border-0 shadow-sm p-4 text-center text-white KPI-card" style="border-radius: 8px; background-color: #2b4c66;">
+                    <span class="small fw-bold text-uppercase" style="font-family: 'Georgia', serif; opacity: 0.9;">Resumen del Mes</span>
+                    <h2 class="fw-bold my-2" style="font-family: 'Georgia', serif; color: #ffca28;">
+                        s/.@Model.Where(t => t.Fecha.Month == DateTime.Today.Month && t.Fecha.Year == DateTime.Today.Year).Sum(t => t.Monto).ToString("N2")
+                    </h2>
+                    <small class="text-warning">Click para desplegar meses</small>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="mx-auto" style="max-width: 1100px;">
+        <div class="row bg-white py-3 px-4 mb-3 shadow-sm align-items-center" style="border-radius: 12px;">
+            <div class="col-3 text-center"><h4 class="mb-0 fw-normal">Servicio</h4></div>
+            <div class="col-3 text-center"><h4 class="mb-0 fw-normal">Medio de pago</h4></div>
+            <div class="col-3 text-center"><h4 class="mb-0 fw-normal">Paciente</h4></div>
+            <div class="col-3 text-center"><h4 class="mb-0 fw-normal">Total</h4></div>
+        </div>
+
+        <div style="border-top: 3px solid #366d91; padding: 20px 0;">
+            @foreach (var t in Model)
+            {
+                <div class="row bg-white py-3 px-4 mb-3 align-items-center shadow-sm" style="border-radius: 5px;">
+                    <div class="col-3 text-center">
+                        <span class="fw-bold" style="color: #333;">@t.Concepto</span>
+                        <br /><small class="text-muted" style="font-size: 0.75rem;">@t.Fecha.ToString("dd/MM/yyyy")</small>
+                    </div>
+                    <div class="col-3 text-center">
+                        <span class="fw-bold" style="color: #333;">@t.MetodoPago</span>
+                    </div>
+                    <div class="col-3 text-center">
+                        <span class="fw-bold" style="color: #333;">@t.PacienteNombre</span>
+                    </div>
+                    <div class="col-3 text-center">
+                        <span class="fw-bold" style="color: #7ab397;">s/.@t.Monto.ToString("N2")</span>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted bg-white shadow-sm" style="border-radius: 5px;">
+                    No hay registros disponibles en este momento.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Gerente"))
+{
+    <div class="modal fade" id="modalSemanal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0" style="border-radius: 8px;">
+                <div class="modal-header" style="border-bottom: 2px solid #366d91;">
+                    <h5 class="modal-title fw-bold" style="font-family: 'Georgia', serif; color: #366d91;">Historial de la Semana</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="overflow-auto" style="max-height: 400px;" id="contenedorSemanal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalMensual" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0" style="border-radius: 8px;">
+                <div class="modal-header" style="border-bottom: 2px solid #366d91;">
+                    <h5 class="modal-title fw-bold" style="font-family: 'Georgia', serif; color: #2b4c66;">Resumen Histórico Mensual</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="accordion accordion-flush" id="accordionMensual"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    body {
+        background-color: #e9ecef;
+    }
+
+    h1, h4 {
+        font-family: 'Georgia', serif;
+    }
+
+    .KPI-card {
+        transition: all 0.2s ease-in-out;
+    }
+
+        .KPI-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        let mSemanal, mMensual;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const modSem = document.getElementById('modalSemanal');
+            const modMen = document.getElementById('modalMensual');
+            if(modSem) mSemanal = new bootstrap.Modal(modSem);
+            if(modMen) mMensual = new bootstrap.Modal(modMen);
+        });
+
+        function abrirModalSemanal() {
+            const contenedor = document.getElementById('contenedorSemanal');
+            if(!contenedor) return;
+            contenedor.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-secondary" role="status"></div></div>';
+            mSemanal.show();
+            fetch('/Caja/HistorialSemanal').then(res => res.json()).then(data => {
+                if(data.length === 0) {
+                    contenedor.innerHTML = '<p class="text-center text-muted py-4">No hay registros.</p>';
+                    return;
+                }
+                let html = '<div class="table-responsive"><table class="table table-striped align-middle bg-white"><tbody>';
+                data.forEach(item => {
+                    html += `<tr><td class="p-3">${item.fecha}</td><td class="fw-bold">${item.concepto}</td><td>${item.paciente}</td><td class="text-end fw-bold" style="color: #7ab397;">s/.${item.monto}</td></tr>`;
+                });
+                contenedor.innerHTML = html + '</tbody></table></div>';
+            });
+        }
+
+        function abrirModalMensual() {
+            const accordion = document.getElementById('accordionMensual');
+            if(!accordion) return;
+            accordion.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-secondary" role="status"></div></div>';
+            mMensual.show();
+            fetch('/Caja/HistorialMensual').then(res => res.json()).then(data => {
+                if(data.length === 0) {
+                    accordion.innerHTML = '<p class="text-center text-muted py-4">No hay registros.</p>';
+                    return;
+                }
+                let html = '';
+                data.forEach((grupo, idx) => {
+                    html += `<div class="accordion-item mb-2 border shadow-sm">
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_${idx}">
+                        ${grupo.mesAnio} - Total: s/.${grupo.total}</button></h2>
+                        <div id="c_${idx}" class="accordion-collapse collapse"><div class="accordion-body bg-white">Detalles cargados...</div></div></div>`;
+                });
+                accordion.innerHTML = html;
+            });
+        }
+    </script>
+}

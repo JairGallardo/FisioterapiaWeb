@@ -1,0 +1,288 @@
+﻿@model List<FisioterapiaWeb.Models.Paciente>
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-family: 'Georgia', serif; color: #1e293b;">Paciente</h1>
+            <small class="text-muted">@Model.Count pacientes registrados</small>
+        </div>
+        <button class="btn btn-primary shadow-sm px-4 d-flex align-items-center gap-2" style="background-color: #2c5d7d; border-radius: 20px; border: none;" onclick="abrirNuevoModal()">
+            <i class="bi bi-person-plus"></i> Nuevo paciente
+        </button>
+    </div>
+
+    <div class="row my-4 align-items-center">
+        <div class="col-md-7">
+            <div class="input-group bg-white shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="searchInput" class="form-control border-0 py-2" placeholder="Buscar por nombre o DNI...">
+            </div>
+        </div>
+        <div class="col-md-5 text-end">
+            <div class="btn-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                <button class="btn btn-light border-0 px-3 dynamic-filter-btn active" id="btn-filter-all" onclick="filterCards('all')">Todos</button>
+                <button class="btn btn-light border-0 px-3 dynamic-filter-btn" id="btn-filter-activo" onclick="filterCards('Activo')">Activo</button>
+                <button class="btn btn-light border-0 px-3 dynamic-filter-btn" id="btn-filter-inactivo" onclick="filterCards('Inactivo')">Inactivo</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="pacientesGrid">
+        @foreach (var p in Model)
+        {
+            <div class="col-md-6 col-lg-6 mb-4 paciente-card" data-nombre="@p.Nombre @p.Apellido" data-dni="@p.Dni" data-status="@p.Estado">
+                <div class="card border-0 shadow-sm p-3 position-relative" style="border-radius: 20px; background-color: white;">
+
+                    <div class="d-flex align-items-start">
+                        <div class="avatar me-3 d-flex align-items-center justify-content-center fw-bold text-secondary" style="width: 48px; height: 48px; background-color: #e2e8f0; border-radius: 50%; font-size: 1rem;">
+                            @(p.Nombre?.Substring(0, Math.Min(1, p.Nombre.Length)))@(p.Apellido?.Substring(0, Math.Min(1, p.Apellido.Length)))
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold mb-0" style="color: #1e293b; font-size: 1.1rem;">@p.Nombre @p.Apellido</h6>
+                                <span class="badge @(p.Estado == "Activo" ? "bg-success-subtle text-success" : "bg-light text-muted") rounded-pill px-3 py-1" style="font-size: 0.75rem;">@p.Estado</span>
+                            </div>
+
+                            <div class="text-muted mb-2" style="font-size: 0.85rem; line-height: 1.4rem;">
+                                <div>DNI: <span class="text-dark fw-medium">@p.Dni</span></div>
+                                <div>Condición: <span class="text-dark fw-medium">@p.Condicion</span></div>
+                                <div>Edad: <span class="text-dark fw-medium">@p.Edad Años</span></div>
+                                <div>Teléfono: <span class="text-dark fw-medium">@p.Telefono</span></div>
+                                <div style="font-size: 0.8rem; color: #94a3b8;" class="mt-1">Ingreso: @p.FechaIngreso</div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-2">
+                                <button type="button" onclick="abrirEditarModal('@p.Id')" class="btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background-color: #2c5d7d; border: none;">
+                                    <i class="bi bi-pencil-square" style="font-size: 0.85rem;"></i>
+                                </button>
+                                <button type="button" onclick="abrirEliminarModal('@p.Id')" class="btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background-color: #b32626; border: none;">
+                                    <i class="bi bi-trash" style="font-size: 0.85rem;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoPaciente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 25px;">
+            <div class="modal-body p-4">
+                <h3 class="fw-bold mb-4 text-center" style="font-family: 'Georgia', serif; color: #1e293b;">Nuevo paciente</h3>
+
+                <form asp-action="Guardar" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Nombre completo*</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="text" name="Nombre" class="form-control bg-light border-0 py-2" placeholder="Nombre" required style="border-radius: 10px;">
+                            </div>
+                            <div class="col">
+                                <input type="text" name="Apellido" class="form-control bg-light border-0 py-2" placeholder="Apellido" required style="border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 g-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">Edad</label>
+                            <input type="number" name="Edad" class="form-control bg-light border-0 py-2" placeholder="Edad" required style="border-radius: 10px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">DNI</label>
+                            <input type="text" name="Dni" class="form-control bg-light border-0 py-2" placeholder="DNI" style="border-radius: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 g-3 align-items-end">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">Teléfono</label>
+                            <input type="text" name="Telefono" class="form-control bg-light border-0 py-2" placeholder="Teléfono" style="border-radius: 10px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted d-block mb-2">Género</label>
+                            <div class="d-flex gap-3 pt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" id="new_gender_m" value="Masculino" checked>
+                                    <label class="form-check-label small" for="new_gender_m">Masculino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" id="new_gender_f" value="Femenino">
+                                    <label class="form-check-label small" for="new_gender_f">Femenino</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 25px;">Cancelar</button>
+                        <button type="submit" class="btn w-100 py-2 fw-bold text-white shadow-sm" style="border-radius: 25px; background-color: #2c5d7d;">Añadir paciente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarPaciente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 25px;">
+            <div class="modal-body p-4">
+                <h3 class="fw-bold mb-4 text-center" style="font-family: 'Georgia', serif; color: #1e293b;">Editar paciente</h3>
+
+                <form asp-action="Actualizar" method="post">
+                    <input type="hidden" name="Id" id="edit_field_id" />
+                    <input type="hidden" name="FechaIngreso" id="edit_field_fechaIngreso" />
+                    <input type="hidden" name="Condicion" id="edit_field_condicion" />
+                    <input type="hidden" name="Correo" id="edit_field_correo" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Nombre completo*</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="text" name="Nombre" id="edit_field_nombre" class="form-control bg-light border-0 py-2" required style="border-radius: 10px;">
+                            </div>
+                            <div class="col">
+                                <input type="text" name="Apellido" id="edit_field_apellido" class="form-control bg-light border-0 py-2" required style="border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 g-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">Edad</label>
+                            <input type="number" name="Edad" id="edit_field_edad" class="form-control bg-light border-0 py-2" required style="border-radius: 10px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">DNI</label>
+                            <input type="text" name="Dni" id="edit_field_dni" class="form-control bg-light border-0 py-2" style="border-radius: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 g-3 align-items-end">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted">Teléfono</label>
+                            <input type="text" name="Telefono" id="edit_field_telefono" class="form-control bg-light border-0 py-2" style="border-radius: 10px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small text-muted d-block mb-2">Género</label>
+                            <div class="d-flex gap-3 pt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" id="edit_gender_m" value="Masculino">
+                                    <label class="form-check-label small" for="edit_gender_m">Masculino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Genero" id="edit_gender_f" value="Femenino">
+                                    <label class="form-check-label small" for="edit_gender_f">Femenino</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted">Estado</label>
+                        <select name="Estado" id="edit_field_estado" class="form-select bg-light border-0 py-2" style="border-radius: 10px;">
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 25px;">Cancelar</button>
+                        <button type="submit" class="btn w-100 py-2 fw-bold text-white shadow-sm" style="border-radius: 25px; background-color: #2c5d7d;">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminarPaciente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content border-0 p-4 shadow" style="border-radius: 25px;">
+            <div class="modal-body text-center">
+                <h4 class="mb-4 fw-normal" style="font-family: 'Georgia', serif; color: #1e293b;">¿Eliminar paciente?</h4>
+                <form asp-action="Eliminar" method="post">
+                    <input type="hidden" name="id" id="delete_id" />
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4" style="background-color: #b32626; border: none;">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let filter = this.value.toLowerCase();
+            let cards = document.querySelectorAll('.paciente-card');
+            cards.forEach(card => {
+                let nombre = card.getAttribute('data-nombre').toLowerCase();
+                let dni = card.getAttribute('data-dni').toLowerCase();
+                card.style.display = (nombre.includes(filter) || dni.includes(filter)) ? "" : "none";
+            });
+        });
+
+        function filterCards(status) {
+            let cards = document.querySelectorAll('.paciente-card');
+            cards.forEach(card => {
+                let cardStatus = card.getAttribute('data-status').trim();
+                card.style.display = (status === 'all' || cardStatus === status) ? "" : "none";
+            });
+
+            document.querySelectorAll('.dynamic-filter-btn').forEach(btn => btn.classList.remove('active'));
+            if(status === 'all') document.getElementById('btn-filter-all').classList.add('active');
+            if(status === 'Activo') document.getElementById('btn-filter-activo').classList.add('active');
+            if(status === 'Inactivo') document.getElementById('btn-filter-inactivo').classList.add('active');
+        }
+
+        function abrirNuevoModal() {
+            var myModal = new bootstrap.Modal(document.getElementById('modalNuevoPaciente'));
+            myModal.show();
+        }
+
+        function abrirEditarModal(id) {
+            fetch(`/Paciente/ObtenerPaciente?id=${id}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Error en la respuesta");
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('edit_field_id').value = data.id;
+                    document.getElementById('edit_field_nombre').value = data.nombre || '';
+                    document.getElementById('edit_field_apellido').value = data.apellido || '';
+                    document.getElementById('edit_field_dni').value = data.dni || '';
+                    document.getElementById('edit_field_edad').value = data.edad || 0;
+                    document.getElementById('edit_field_telefono').value = data.telefono || '';
+                    document.getElementById('edit_field_condicion').value = data.condicion || 'Fisioterapia general';
+                    document.getElementById('edit_field_correo').value = data.correo || 'sin@correo.com';
+                    document.getElementById('edit_field_fechaIngreso').value = data.fechaIngreso || '';
+                    document.getElementById('edit_field_estado').value = data.estado ? data.estado.trim() : 'Activo';
+
+                    if (data.genero === "Femenino") {
+                        document.getElementById('edit_gender_f').checked = true;
+                    } else {
+                        document.getElementById('edit_gender_m').checked = true;
+                    }
+
+                    var myModal = new bootstrap.Modal(document.getElementById('modalEditarPaciente'));
+                    myModal.show();
+                })
+                .catch(err => console.error("Error al obtener datos del paciente:", err));
+        }
+
+        function abrirEliminarModal(id) {
+            document.getElementById('delete_id').value = id;
+            var myModal = new bootstrap.Modal(document.getElementById('modalEliminarPaciente'));
+            myModal.show();
+        }
+    </script>
+}

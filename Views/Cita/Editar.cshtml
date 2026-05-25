@@ -1,0 +1,104 @@
+﻿@model FisioterapiaWeb.Models.Cita
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color: #f4f6f8;">
+    <div class="card shadow border-0 p-4" style="width: 100%; max-width: 520px; border-radius: 28px; background-color: #ffffff;">
+
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1" style="color: #0f172a; font-size: 1.8rem;">Editar cita</h2>
+        </div>
+
+        <form asp-action="Actualizar" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="NombrePaciente" />
+            <input type="hidden" asp-for="Lugar" />
+            <input type="hidden" asp-for="Estado" />
+            <input type="hidden" asp-for="Recepcionista" />
+
+            <div class="mb-3 row align-items-center">
+                <label class="col-3 col-form-label fw-semibold text-secondary" style="font-size: 1.05rem;">Fecha</label>
+                <div class="col-9">
+                    <input asp-for="Fecha" type="date" class="form-control border-0 bg-transparent fw-semibold p-0 text-dark" style="font-size: 1.1rem; shadow: none;" required />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Paciente*</label>
+                <select asp-for="PacienteId" class="form-select border-0 py-2.5 px-3 fs-6" style="border-radius: 14px; background-color: #e2e8f0; color: #334155;" required>
+                    @if (ViewBag.Pacientes != null)
+                    {
+                        @foreach (var p in (List<FisioterapiaWeb.Models.Paciente>)ViewBag.Pacientes)
+                        {
+                            <option value="@p.Id">@p.Nombre @p.Apellido</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Hora*</label>
+                    <div class="position-relative">
+                        <input asp-for="Hora" type="time" class="form-select border-0 py-2.5 px-3 fs-6 w-100" style="border-radius: 14px; background-color: #e2e8f0; color: #334155; appearance: none;" required />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Duración</label>
+                    <select asp-for="DuracionMinutos" class="form-select border-0 py-2.5 px-3 fs-6" style="border-radius: 14px; background-color: #e2e8f0; color: #334155;">
+                        <option value="0">0 min</option>
+                        <option value="30">30 min</option>
+                        <option value="45">45 min</option>
+                        <option value="60">60 min</option>
+                        <option value="90">90 min</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Tipo de servicio</label>
+                    <select asp-for="Tratamiento" class="form-select border-0 py-2.5 px-3 fs-6" style="border-radius: 14px; background-color: #e2e8f0; color: #334155;" required>
+                        @if (ViewBag.Terapias != null)
+                        {
+                            @foreach (var t in (List<FisioterapiaWeb.Models.Terapia>)ViewBag.Terapias)
+                            {
+                                <option value="@t.Nombre">@t.Nombre</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Número de sesión</label>
+                    <input asp-for="NumeroSesion" type="text" class="form-control border-0 py-2.5 px-3 fs-6 text-center" style="border-radius: 14px; background-color: #e2e8f0; color: #334155;" placeholder="1/1" />
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Medio de pago</label>
+                    <select asp-for="MetodoPago" class="form-select border-0 py-2.5 px-3 fs-6" style="border-radius: 14px; background-color: #e2e8f0; color: #334155;">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Yape">Yape</option>
+                        <option value="Plin">Plin</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold text-dark mb-1" style="font-size: 1.05rem;">Total</label>
+                    <div class="input-group" style="border-radius: 14px; overflow: hidden; background-color: #d1fae5;">
+                        <span class="input-group-text border-0 bg-transparent pe-0 fw-bold text-success" style="font-size: 1rem;">S/.</span>
+                        <input asp-for="Monto" type="number" step="0.01" class="form-control border-0 bg-transparent fw-bold text-success ps-1 py-2.5 fs-6" style="box-shadow: none;" placeholder="0.00" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 pt-2">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100 py-2.5 fw-bold text-decoration-none text-center" style="border-radius: 20px; border: 2px solid #cbd5e1; color: #1e293b; font-size: 1rem; background-color: transparent;">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn text-white w-100 py-2.5 fw-bold shadow-sm" style="background-color: #1e557a; border-radius: 20px; border: none; font-size: 1rem;">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,163 @@
+﻿@model List<FisioterapiaWeb.Models.Terapia>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-0">Servicios</h1>
+            <p class="text-muted">Servicios disponibles en el centro</p>
+        </div>
+
+        @if (User.IsInRole("Gerente"))
+        {
+            <button class="btn btn-dark px-4" style="border-radius: 10px;" onclick="abrirModalNuevo()">
+                <i class="bi bi-plus-lg me-2"></i> Nuevo Servicio
+            </button>
+        }
+    </div>
+
+    <div class="row mb-5">
+        @foreach (var t in Model.Where(x => !x.EsPaquete))
+        {
+            <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm p-3 position-relative" style="border-radius: 20px;">
+
+                    @if (User.IsInRole("Gerente"))
+                    {
+                        <div class="position-absolute top-0 end-0 mt-3 me-3">
+                            <button class="btn btn-sm btn-light text-primary me-1"
+                                    onclick="abrirModalEditar('@t.Id', '@t.Nombre', '@t.Descripcion', '@t.Precio', '@t.DuracionMinutos', 'false')"
+                                    title="Editar">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-danger"
+                                    onclick="confirmarEliminar('@t.Id', '@t.Nombre')"
+                                    title="Eliminar">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <i class="bi bi-person-walking text-dark fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1 pe-5">@t.Nombre</h5>
+                        <p class="text-muted small" style="font-size: 0.85rem; height: 40px; overflow: hidden;">@t.Descripcion</p>
+                        <div class="text-muted small mb-1"><i class="bi bi-clock me-1"></i> @t.DuracionMinutos min</div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-muted small">costo</span>
+                                @if (t.Precio == 0)
+                                {
+                                    <span class="ms-3 fw-bold text-success">Gratis</span>
+                                }
+                                else
+                                {
+                                    <span class="ms-3 fw-bold text-success">S/. @t.Precio.ToString("F2")</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <h3 class="fw-bold mb-1">Paquetes</h3>
+    <p class="text-muted mb-4">Paquetes promocionales disponibles</p>
+
+    <div class="row">
+        @foreach (var t in Model.Where(x => x.EsPaquete))
+        {
+            <div class="col-md-5 mb-4">
+                <div class="card border-0 shadow-sm p-3 position-relative" style="border-radius: 20px;">
+
+                    @if (User.IsInRole("Gerente"))
+                    {
+                        <div class="position-absolute top-0 end-0 mt-3 me-3">
+                            <button class="btn btn-sm btn-light text-primary me-1"
+                                    onclick="abrirModalEditar('@t.Id', '@t.Nombre', '@t.Descripcion', '@t.Precio', '@t.DuracionMinutos', 'true')"
+                                    title="Editar">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light text-danger"
+                                    onclick="confirmarEliminar('@t.Id', '@t.Nombre')"
+                                    title="Eliminar">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <i class="bi bi-people text-dark fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1 pe-5">@t.Nombre</h5>
+                        <p class="text-muted small" style="font-size: 0.85rem; height: 40px; overflow: hidden;">@t.Descripcion</p>
+                        <div class="text-muted small mb-1"><i class="bi bi-clock me-1"></i> @t.DuracionMinutos min</div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-muted small">costo</span>
+                                <span class="ms-3 fw-bold text-success">S/. @t.Precio.ToString("F2")</span>
+                                @if (t.Precio > 0)
+                                {
+                                    <span class="text-muted text-decoration-line-through ms-2 small">S/. @((t.Precio * 1.2m).ToString("F2"))</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    let modalForm;
+    let modalDel;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        modalForm = new bootstrap.Modal(document.getElementById('modalTerapia'));
+        modalDel = new bootstrap.Modal(document.getElementById('modalEliminar'));
+    });
+
+    function abrirModalNuevo() {
+        document.getElementById('modalTerapiaLabel').innerText = "Nuevo Servicio";
+        document.getElementById('terapiaId').value = "";
+        document.getElementById('terapiaNombre').value = "";
+        document.getElementById('terapiaDescripcion').value = "";
+
+        document.getElementById('terapiaPrecio').value = "0.00";
+
+        document.getElementById('terapiaDuracion').value = "30";
+        document.getElementById('terapiaEsPaquete').checked = false;
+
+        modalForm.show();
+    }
+
+    function abrirModalEditar(id, nombre, descripcion, precio, duracion, esPaquete) {
+        document.getElementById('modalTerapiaLabel').innerText = "Editar Servicio";
+        document.getElementById('terapiaId').value = id;
+        document.getElementById('terapiaNombre').value = nombre;
+        document.getElementById('terapiaDescripcion').value = descripcion;
+
+        document.getElementById('terapiaPrecio').value = precio.replace(',', '.');
+
+        document.getElementById('terapiaDuracion').value = duracion;
+        document.getElementById('terapiaEsPaquete').checked = (esPaquete === 'true');
+
+        modalForm.show();
+    }
+    function confirmarEliminar(id, nombre) {
+        document.getElementById('eliminarId').value = id;
+        document.getElementById('eliminarNombre').innerText = nombre;
+        modalDel.show();
+    }
+</script>

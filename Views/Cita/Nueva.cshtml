@@ -1,0 +1,68 @@
+﻿@model FisioterapiaWeb.Models.Cita
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-header bg-white border-0 pt-4">
+            <h3 class="fw-bold" style="color: #2c5d7d;">
+                <i class="bi bi-calendar-event me-2"></i>Programar Cita
+            </h3>
+        </div>
+        <div class="card-body">
+            <form asp-controller="Cita" asp-action="Nueva Cita" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Paciente</label>
+                        <select asp-for="PacienteId" class="form-select" required>
+                            <option value="">Seleccione un paciente...</option>
+                            @if (ViewBag.Pacientes != null)
+                            {
+                                @foreach (var p in (List<FisioterapiaWeb.Models.Paciente>)ViewBag.Pacientes)
+                                {
+                                    <option value="@p.Id">@p.Nombre @p.Apellido</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Fecha</label>
+                        <input asp-for="Fecha" type="date" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Hora</label>
+                        <input asp-for="Hora" type="time" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Especialista</label>
+                        <input asp-for="Recepcionista" class="form-control" placeholder="Nombre del fisioterapeuta" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Tratamiento / Terapia</label>
+                        <select asp-for="Tratamiento" class="form-select" required>
+                            <option value="">Seleccione una terapia...</option>
+                            @if (ViewBag.Terapias != null)
+                            {
+                                @foreach (var t in (List<FisioterapiaWeb.Models.Terapia>)ViewBag.Terapias)
+                                {
+                                    <option value="@t.Nombre">@t.Nombre (S/ @t.Precio)</option>
+                                }
+                            }
+                        </select>
+                        <div class="form-text">Los precios se cargan desde el catálogo de terapias.</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <hr />
+                    <a asp-action="Index" class="btn btn-light px-4" style="border-radius: 20px;">Regresar</a>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm" style="background-color: #2c5d7d; border-radius: 20px;">
+                        <i class="bi bi-save me-2"></i>Guardar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
