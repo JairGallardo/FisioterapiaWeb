@@ -112,7 +112,6 @@
                                             }
                                             else if (User.IsInRole("Fisioterapeuta"))
                                             {
-                                                @* Menú exclusivo y limpio para el Fisioterapeuta *@
                                                 <li>
                                                     <a class="dropdown-item py-2 rounded-2 fw-medium text-dark" style="font-size: 0.85rem;" asp-controller="Historia" asp-action="Index" asp-route-pacienteId="@cita.PacienteId" asp-route-nombre="@cita.NombrePaciente">
                                                         <i class="bi bi-file-earmark-medical text-primary me-2"></i> Historial Clínico

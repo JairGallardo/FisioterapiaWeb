@@ -76,6 +76,41 @@ namespace FisioterapiaWeb.Controllers
             return Json(citasPaciente);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Nueva()
+        {
+            var listaPacientes = await _client.Child("Pacientes").OnceAsync<Paciente>();
+            ViewBag.Pacientes = listaPacientes
+                .Where(x => x.Object.Estado == "Activo")
+                .Select(x => new Paciente { Id = x.Key, Nombre = x.Object.Nombre, Apellido = x.Object.Apellido })
+                .ToList();
+
+            var listaTerapias = await _client.Child("Terapias").OnceAsync<Terapia>();
+            ViewBag.Terapias = listaTerapias
+                .Select(x => new Terapia { Id = x.Key, Nombre = x.Object.Nombre, Precio = x.Object.Precio })
+                .ToList();
+
+            var listaUsuarios = await _client.Child("Usuarios").OnceAsync<dynamic>();
+            var usuariosFisioterapeutas = new List<Usuario>();
+
+            foreach (var node in listaUsuarios)
+            {
+                if (node.Object.Rol != null && node.Object.Rol.ToString() == "Fisioterapeuta")
+                {
+                    usuariosFisioterapeutas.Add(new Usuario
+                    {
+                        Correo = node.Key,
+                        NombreCompleto = node.Object.NombreCompleto?.ToString() ?? "Sin Nombre",
+                        Rol = node.Object.Rol.ToString()
+                    });
+                }
+            }
+
+            ViewBag.Usuarios = usuariosFisioterapeutas;
+
+            return View(new Cita());
+        }
+
         [HttpPost]
         public async Task<IActionResult> Nueva(Cita nueva)
         {
@@ -83,6 +118,15 @@ namespace FisioterapiaWeb.Controllers
             if (paciente != null)
             {
                 nueva.NombrePaciente = $"{paciente.Nombre} {paciente.Apellido}";
+            }
+
+            if (!string.IsNullOrEmpty(nueva.Recepcionista))
+            {
+                var fisoData = await _client.Child("Usuarios").Child(nueva.Recepcionista).OnceSingleAsync<dynamic>();
+                if (fisoData != null && fisoData.NombreCompleto != null)
+                {
+                    nueva.Recepcionista = fisoData.NombreCompleto.ToString();
+                }
             }
 
             nueva.Estado = "Reservado";
